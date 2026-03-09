@@ -44,6 +44,6 @@ redteam:
     - mcp
 
   strategies:
+    - basic
     - best-of-n
     - jailbreak
-    - prompt-injection
