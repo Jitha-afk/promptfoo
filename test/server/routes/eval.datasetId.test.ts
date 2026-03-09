@@ -4,10 +4,13 @@
  * Verifies that the API route includes datasetId from the eval's associated dataset.
  */
 
+import { randomUUID } from 'crypto';
+
 import request from 'supertest';
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { getDb } from '../../../src/database/index';
 import { runDbMigrations } from '../../../src/migrate';
+import Eval from '../../../src/models/eval';
 import { createApp } from '../../../src/server/server';
 import EvalFactory from '../../factories/evalFactory';
 
@@ -39,9 +42,19 @@ describe('GET /api/eval/:id/table - datasetId', () => {
     expect(response.body.datasetId.length).toBeGreaterThan(0);
   });
 
-  it('should return a consistent datasetId for the same test configuration', async () => {
+  it('should return different datasetIds for different test configurations', async () => {
     const eval1 = await EvalFactory.create();
-    const eval2 = await EvalFactory.create();
+
+    // Create a second eval with a different test configuration
+    const eval2 = await Eval.create(
+      {
+        providers: [{ id: 'test-provider' }],
+        prompts: ['Tell me about {{topic}}'],
+        tests: [{ vars: { topic: 'astronomy' }, assert: [{ type: 'contains', value: 'star' }] }],
+      },
+      [{ raw: 'Tell me about astronomy', label: 'Tell me about {{topic}}' }],
+      { id: randomUUID() },
+    );
 
     const response1 = await request(app).get(`/api/eval/${eval1.id}/table`);
     const response2 = await request(app).get(`/api/eval/${eval2.id}/table`);
@@ -49,7 +62,7 @@ describe('GET /api/eval/:id/table - datasetId', () => {
     expect(response1.status).toBe(200);
     expect(response2.status).toBe(200);
 
-    // Same test configuration should produce the same datasetId (content-addressed)
-    expect(response1.body.datasetId).toBe(response2.body.datasetId);
+    // Different test configurations should produce different datasetIds
+    expect(response1.body.datasetId).not.toBe(response2.body.datasetId);
   });
 });
