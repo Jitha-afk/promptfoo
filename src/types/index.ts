@@ -441,6 +441,7 @@ export type EvalTableDTO = {
   author: string | null;
   version: number;
   id: string;
+  datasetId: string | null;
   stats?: EvaluateStats;
 };
 

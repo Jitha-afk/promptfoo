@@ -272,6 +272,8 @@ interface TableState {
   author: string | null;
   setAuthor: (author: string | null) => void;
 
+  datasetId: string | null;
+
   table: EvaluateTable | null;
   setTable: (table: EvaluateTable | null) => void;
   setTableFromResultsFile: (resultsFile: ResultsFile) => Promise<void>;
@@ -539,6 +541,8 @@ export const useTableStore = create<TableState>()(
     author: null,
     setAuthor: (author: string | null) => set(() => ({ author })),
 
+    datasetId: null,
+
     version: null,
     setVersion: (version: number) => set(() => ({ version })),
 
@@ -720,6 +724,7 @@ export const useTableStore = create<TableState>()(
             config: data.config,
             version: data.version,
             author: data.author,
+            datasetId: data.datasetId || null,
             evalId: skipSettingEvalId ? get().evalId : id,
             isFetching: skipLoadingState ? prevState.isFetching : false,
             shouldHighlightSearchText: searchText !== '',
