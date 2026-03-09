@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@app/components/ui/dropdown-menu';
 import { Tabs, TabsList, TabsTrigger } from '@app/components/ui/tabs';
-import { EVAL_ROUTES } from '@app/constants/routes';
+import { EVAL_ROUTES, ROUTES } from '@app/constants/routes';
 import { useToast } from '@app/hooks/useToast';
 import { cn } from '@app/lib/utils';
 import { fetchUserEmail, updateEvalAuthor } from '@app/utils/api';
@@ -57,7 +57,8 @@ export default function EvalHeader({
 }: EvalHeaderProps) {
   const { showToast } = useToast();
 
-  const { evalId, author, config, totalResultsCount, stats, table, setAuthor } = useTableStore();
+  const { evalId, author, config, totalResultsCount, stats, table, datasetId, setAuthor } =
+    useTableStore();
 
   const { head } = table!;
 
@@ -216,6 +217,13 @@ export default function EvalHeader({
                 {formatDuration(stats.durationMs)}
               </Chip>
             )}
+            {datasetId && (
+              <Link to={ROUTES.DATASET_DETAIL(datasetId)} className="no-underline">
+                <Chip label="DATASET" interactive>
+                  {datasetId.slice(0, 6)}
+                </Chip>
+              </Link>
+            )}
             {Object.keys(config?.tags || {}).map((tag) => (
               <Badge key={tag} variant="secondary" className="opacity-70">
                 {`${tag}: ${config?.tags?.[tag]}`}
@@ -260,6 +268,12 @@ export default function EvalHeader({
                 <div>
                   <span className="font-semibold text-gray-700">Duration:</span>{' '}
                   <span>{formatDuration(stats.durationMs)}</span>
+                </div>
+              )}
+              {datasetId && (
+                <div>
+                  <span className="font-semibold text-gray-700">Dataset:</span>{' '}
+                  <span>{datasetId.slice(0, 6)}</span>
                 </div>
               )}
               {Object.keys(config?.tags || {}).map((tag) => (
